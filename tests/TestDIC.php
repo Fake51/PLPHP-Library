@@ -48,8 +48,27 @@ class TestDIC extends PHPUnit_Framework_TestCase
     {
         $dic = new DIC();
         $obj = new stdClass();
-        $dic->addReusableObject($obj);
+        $this->assertTrue($dic->addReusableObject($obj) instanceof DIC);
         $this->assertTrue($dic->get('stdClass') instanceof stdClass);
         $this->assertTrue($dic->get('stdClass') === $obj);
+    }
+
+    /**
+     * tests the method for adding classes to the DIC
+     *
+     * @access public
+     * @return void
+     */
+    public function testAddClass()
+    {
+        $dic = new DIC();
+        $this->assertTrue($dic->addClass('stdClass', new stdClass) instanceof DIC);
+        $this->assertTrue($dic->get('stdClass') instanceof stdClass);
+
+        $dic           = new DIC();
+        $obj           = new stdClass();
+        $obj->reusable = true;
+        $this->assertTrue($dic->addClass($obj, $obj) instanceof DIC);
+        $this->assertTrue($dic->get('stdClass') instanceof stdClass);
     }
 }

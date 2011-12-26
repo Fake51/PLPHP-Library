@@ -69,6 +69,36 @@ class DIC
     }
 
     /**
+     * adds a class to list of classes than can be
+     * created by the container
+     *
+     * @param string|object $class   Name of class to add or object of class
+     * @param stdClass      $options stdClass object with options
+     *
+     * @throws DICException
+     * @access public
+     * @return $this
+     */
+    public function addClass($class, stdClass $options)
+    {
+        if (is_string($class)) {
+            $class_name = $class;
+        } elseif (is_object($class)) {
+            $class_name = get_class($class);
+        } else {
+            throw new DICException('Class parameter is not object or string');
+        }
+
+        $class_options = array();
+        if (!empty($options->reusable)) {
+            $class_options['reusable'] = true;
+        }
+
+        $this->dependencies[$class_name] = $class_options;
+        return $this;
+    }
+
+    /**
      * adds an object to pool of reusables
      * - allows for more complex constructions
      *   and setups of objects if needed
@@ -144,19 +174,21 @@ class DIC
 
             $params    = array();
             $constants = get_defined_constants();
-            foreach ($constructor->getParameters() as $parameter) {
-                if ($class = $parameter->getClass()) {
-                    if (!isset($this->dependencies[$class->getName()])) {
-                        throw new DICException('Cannot create dependency class ' . $class->getName());
-                    }
+            if ($constructor) {
+                foreach ($constructor->getParameters() as $parameter) {
+                    if ($class = $parameter->getClass()) {
+                        if (!isset($this->dependencies[$class->getName()])) {
+                            throw new DICException('Cannot create dependency class ' . $class->getName());
+                        }
 
-                    $params[] = $this->get($class->getName());
-                } else {
-                    if (!isset($constants[$parameter->getName()])) {
-                        throw new DICException('Cannot find dependency: ' . $parameter->getName());
-                    }
+                        $params[] = $this->get($class->getName());
+                    } else {
+                        if (!isset($constants[$parameter->getName()])) {
+                            throw new DICException('Cannot find dependency: ' . $parameter->getName());
+                        }
 
-                    $params[] = $constants[$parameter->getName()];
+                        $params[] = $constants[$parameter->getName()];
+                    }
                 }
             }
 
