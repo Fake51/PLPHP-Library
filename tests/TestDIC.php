@@ -12,6 +12,7 @@
  */
 
 require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
+$autoload = new Autoload();
 
 /**
  * tests the DIC class

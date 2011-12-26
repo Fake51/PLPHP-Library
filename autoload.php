@@ -11,8 +11,6 @@
  * @link     http://www.plphp.dk
  */
 
-$autoloader = new AutoLoad();
-
 /**
  * Autoloader exception class
  *
