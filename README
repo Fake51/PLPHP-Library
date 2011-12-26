@@ -1,0 +1,12 @@
+Introduction
+============
+Library of classes for code reuse
+
+Contents
+========
+dic.php:         Dependency Injection Container
+autoloader.php:  Autoloader
+
+License
+=======
+FreeBSD License - see the COPYRIGHT file
