@@ -8,7 +8,7 @@
  * @category PLPHP-Library
  * @package  PLPHP-Library
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD License
+ * @license  https://github.com/Fake51/PLPHP-Library/blob/master/COPYRIGHT FreeBSD License
  * @link     http://www.plphp.dk
  */
 
@@ -16,9 +16,9 @@
  * dependency injection container exception
  *
  * @category PLPHP-Library
- * @package  PLPHP-Library
+ * @package  PLPHP-Library-Exceptions
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD License
+ * @license  https://github.com/Fake51/PLPHP-Library/blob/master/COPYRIGHT FreeBSD License
  * @link     http://www.plphp.dk
  */
 class DICException extends exception
@@ -31,7 +31,7 @@ class DICException extends exception
  * @category PLPHP-Library
  * @package  PLPHP-Library
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD License
+ * @license  https://github.com/Fake51/PLPHP-Library/blob/master/COPYRIGHT FreeBSD License
  * @link     http://www.plphp.dk
  */
 class DIC
@@ -41,7 +41,7 @@ class DIC
      *
      * @var array
      */
-    protected static $dependencies = array(
+    protected $dependencies = array(
         'DIC' => array(
             'reusable' => true,
         ),
@@ -53,7 +53,7 @@ class DIC
      *
      * @var array
      */
-    protected static $object_pool = array();
+    protected $object_pool = array();
 
     /**
      * public constructor
@@ -63,8 +63,8 @@ class DIC
      */
     public function __construct()
     {
-        if (empty(self::$object_pool[get_class($this)])) {
-            self::$object_pool[get_class($this)] = $this;
+        if (empty($this->object_pool[get_class($this)])) {
+            $this->object_pool[get_class($this)] = $this;
         }
     }
 
@@ -87,11 +87,11 @@ class DIC
 
         $class = get_class($object);
 
-        if (!isset(self::$dependencies[$class])) {
-            self::$dependencies[$class] = array('reusable' => true);
+        if (!isset($this->dependencies[$class])) {
+            $this->dependencies[$class] = array('reusable' => true);
         }
 
-        self::$object_pool[$class] = $object;
+        $this->object_pool[$class] = $object;
 
         return $this;
     }
@@ -108,18 +108,18 @@ class DIC
      */
     public function get($class_name)
     {
-        if (!isset(self::$dependencies[$class_name])) {
+        if (!isset($this->dependencies[$class_name])) {
             throw new DICException('No information available for class ' . $class_name);
         }
 
-        if (!empty(self::$dependencies[$class_name]['reusable']) && !empty(self::$object_pool[$class_name])) {
-            return self::$object_pool[$class_name];
+        if (!empty($this->dependencies[$class_name]['reusable']) && !empty($this->object_pool[$class_name])) {
+            return $this->object_pool[$class_name];
         }
 
         $object = $this->createObject($class_name);
 
-        if (!empty(self::$dependencies[$class_name]['reusable'])) {
-            self::$object_pool[$class_name] = $object;
+        if (!empty($this->dependencies[$class_name]['reusable'])) {
+            $this->object_pool[$class_name] = $object;
         }
 
         return $object;
@@ -139,14 +139,14 @@ class DIC
     {
         $reflection  = new ReflectionClass($class_name);
 
-        if (empty(self::$dependencies[$class_name]['parameters'])) {
+        if (empty($this->dependencies[$class_name]['parameters'])) {
             $constructor = $reflection->getConstructor();
 
             $params    = array();
             $constants = get_defined_constants();
             foreach ($constructor->getParameters() as $parameter) {
                 if ($class = $parameter->getClass()) {
-                    if (!isset(self::$dependencies[$class->getName()])) {
+                    if (!isset($this->dependencies[$class->getName()])) {
                         throw new DICException('Cannot create dependency class ' . $class->getName());
                     }
 
@@ -160,9 +160,9 @@ class DIC
                 }
             }
 
-            self::$dependencies[$class_name]['parameters'] = $params;
+            $this->dependencies[$class_name]['parameters'] = $params;
         }
 
-        return $reflection->newInstanceArgs(self::$dependencies[$class_name]['parameters']);
+        return $reflection->newInstanceArgs($this->dependencies[$class_name]['parameters']);
     }
 }
