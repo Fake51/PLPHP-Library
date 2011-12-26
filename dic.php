@@ -195,6 +195,8 @@ class DIC
             $this->dependencies[$class_name]['parameters'] = $params;
         }
 
-        return $reflection->newInstanceArgs($this->dependencies[$class_name]['parameters']);
+        return count($this->dependencies[$class_name]['parameters']) > 0 ?
+            $reflection->newInstanceArgs($this->dependencies[$class_name]['parameters']) :
+            $reflection->newInstance();
     }
 }
